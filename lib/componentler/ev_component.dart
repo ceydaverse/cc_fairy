@@ -7,13 +7,12 @@ import 'package:flame/game.dart';
 class EvComponent extends SpriteComponent with HasGameReference<FlameGame> {
   EvComponent({
     required Vector2 konum,
-    Vector2? boyut,
-  }) : _boyut = boyut ?? Vector2(150, 150) {
+  }) {
     position = konum;
   }
 
-  // İsteğe bağlı özel boyut
-  final Vector2 _boyut;
+  // Ev boyutu — büyütmek için sadece burayı değiştir
+  static final Vector2 evBoyutu = Vector2(180, 180);
 
   /// Çarpışma kontrolü için evin ekrandaki dikdörtgen alanı
   Rect get sinirlar {
@@ -31,7 +30,7 @@ class EvComponent extends SpriteComponent with HasGameReference<FlameGame> {
     // Ev görselini yükle (Flame: sadece dosya adı)
     final evGorseli = await game.images.load('ev.png');
     sprite = Sprite(evGorseli);
-    size = _boyut;
+    size = evBoyutu;
     anchor = Anchor.center;
   }
 }

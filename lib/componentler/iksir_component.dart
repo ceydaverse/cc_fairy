@@ -26,8 +26,18 @@ class IksirComponent extends SpriteComponent
   /// İksir şu an ekranda görünüyor mu?
   bool get gorunur => _gorunur;
 
-  /// Çarpışma kontrolü (ileride Nazlı iksire ulaşınca kullanılabilir)
+  /// Nazlı iksiri içti mi?
+  bool get icildiMi => _icildi;
+
+  // Nazlı tarafından bir kez içildi
+  bool _icildi = false;
+
+  /// Çarpışma — yalnızca görünür ve içilmemiş iksir için
   Rect get sinirlar {
+    if (!_gorunur || _icildi) {
+      return Rect.zero;
+    }
+
     return Rect.fromCenter(
       center: Offset(position.x, position.y),
       width: size.x,
@@ -74,9 +84,21 @@ class IksirComponent extends SpriteComponent
     super.render(canvas);
   }
 
+  /// Nazlı iksire değince içilir ve gizlenir
+  void ic() {
+    if (_icildi) {
+      return;
+    }
+
+    _icildi = true;
+    _gorunur = false;
+    _hedefOpaklik = 0;
+    opacity = 0;
+  }
+
   /// Kelebek yakalanınca iksiri görünür yap
   void goster() {
-    if (_gorunur) {
+    if (_gorunur || _icildi) {
       return;
     }
 

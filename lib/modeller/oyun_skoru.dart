@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 
 /// Oyun sırasında skor ve can bilgisini tutan basit model
 class OyunSkoru extends ChangeNotifier {
-  // Başlangıç can değeri
-  static const int baslangicCan = 3;
+  // Başlangıç can değeri (CanPaneli de bu sabiti kullanır)
+  static const int baslangicCan = 5;
 
   int _can = baslangicCan;
   int _toplananCicek = 0;
