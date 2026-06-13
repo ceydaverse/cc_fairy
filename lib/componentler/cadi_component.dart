@@ -42,7 +42,14 @@ class CadiComponent extends SpriteComponent with HasGameReference<FlameGame> {
   /// false iken cadı büyü fırlatmaz (iksir etkisi vb.)
   bool buyuAtabilir = true;
 
+  // İksir içilince büyü atma engeli — saniye cinsinden kalan süre
+  double _buyuEngelKalan = 0;
+
   double _buyuSayaci = 1.2;
+
+  /// Nazlı büyüsüyle sersemleme — hareket ve atış durur
+  bool sersemledi = false;
+  double _sersemSureKalan = 0;
 
   Rect get sinirlar {
     return Rect.fromCenter(
@@ -65,8 +72,50 @@ class CadiComponent extends SpriteComponent with HasGameReference<FlameGame> {
   @override
   void update(double dt) {
     super.update(dt);
+    _sersemletmeyiGuncelle(dt);
+    _buyuEngeliniGuncelle(dt);
+    if (sersemledi) {
+      return;
+    }
     _nazliyaDogruHareket(dt);
     _buyuSayaciniGuncelle(dt);
+  }
+
+  /// Nazlı büyüsü çarpınca cadı geçici sersemler
+  void sersemlet(double sure) {
+    sersemledi = true;
+    _sersemSureKalan = sure;
+  }
+
+  void _sersemletmeyiGuncelle(double dt) {
+    if (!sersemledi) {
+      return;
+    }
+
+    _sersemSureKalan -= dt;
+    if (_sersemSureKalan <= 0) {
+      _sersemSureKalan = 0;
+      sersemledi = false;
+    }
+  }
+
+  /// İksir içilince cadının büyü atmasını geçici durdurur
+  void buyuAtmayiDurdur(double saniye) {
+    buyuAtabilir = false;
+    _buyuEngelKalan = saniye;
+  }
+
+  /// Büyü engel süresi bitince cadı tekrar büyü atabilir
+  void _buyuEngeliniGuncelle(double dt) {
+    if (_buyuEngelKalan <= 0) {
+      return;
+    }
+
+    _buyuEngelKalan -= dt;
+    if (_buyuEngelKalan <= 0) {
+      _buyuEngelKalan = 0;
+      buyuAtabilir = true;
+    }
   }
 
   /// Nazlı'ya doğru yavaşça ilerle, çok yaklaşma

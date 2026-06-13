@@ -11,19 +11,15 @@ class CicekComponent extends SpriteComponent
   CicekComponent({
     required this.tur,
     required Vector2 konum,
-    Vector2? boyut,
-  }) : _boyut = boyut ?? CicekComponent.varsayilanBoyut {
+  }) {
     position = konum;
   }
 
-  // Varsayılan çiçek boyutu — ekranda net görünür
-  static final Vector2 varsayilanBoyut = Vector2(80, 80);
+  // Çiçek boyutu — büyütmek için sadece burayı değiştir
+  static final Vector2 varsayilanBoyut = Vector2(85, 85);
 
   // Çiçeğin rengi/türü (modeller klasöründen gelir)
   final CicekTuru tur;
-
-  // İsteğe bağlı özel boyut
-  final Vector2 _boyut;
 
   // Çiçek toplandı mı? Oyun ekranı bu bayrağı kontrol eder
   bool toplandi = false;
@@ -43,7 +39,7 @@ class CicekComponent extends SpriteComponent
 
     final cicekGorseli = await game.images.load(tur.assetDosyaAdi);
     sprite = Sprite(cicekGorseli);
-    size = _boyut;
+    size = varsayilanBoyut;
     anchor = Anchor.center;
 
     // Doğal çiçek renkleri — ekstra tint yok

@@ -23,6 +23,17 @@ class NazliComponent extends SpriteComponent
 
   static const double hiz = 220;
 
+  // Ağaç gücü — 5 sn aktif, Space ile 0.5 sn aralıkla büyü
+  bool buyuGucuAktif = false;
+  double buyuGucuKalanSure = 0;
+  double buyuAtmaCooldown = 0;
+
+  // Sağ: 1, sol: -1 (varsayılan sağ)
+  int _baktigiYon = 1;
+  bool _spaceBasili = false;
+
+  Vector2 get baktigiYonu => Vector2(_baktigiYon.toDouble(), 0);
+
   Vector2 _hareketYonu = Vector2.zero();
   double _pirlentiSayaci = 0;
   Vector2? _oncekiKonum;
@@ -42,7 +53,7 @@ class NazliComponent extends SpriteComponent
     final nazliGorseli = await game.images.load('nazli.png');
     sprite = Sprite(nazliGorseli);
 
-    size = Vector2(90, 90);
+    size = Vector2(150, 150);
     anchor = Anchor.center;
 
     paint = Paint()
@@ -75,6 +86,42 @@ class NazliComponent extends SpriteComponent
     _oncekiKonum = position.clone();
   }
 
+  /// Ağaç dokunuşu — 5 saniye büyü gücü
+  void buyuGucuKazan({double sure = 5}) {
+    buyuGucuAktif = true;
+    buyuGucuKalanSure = sure;
+  }
+
+  /// Güç süresi ve atış cooldown güncellemesi
+  void buyuGucunuGuncelle(double dt) {
+    if (buyuGucuKalanSure > 0) {
+      buyuGucuKalanSure -= dt;
+      if (buyuGucuKalanSure <= 0) {
+        buyuGucuKalanSure = 0;
+        buyuGucuAktif = false;
+      }
+    } else {
+      buyuGucuAktif = false;
+    }
+
+    if (buyuAtmaCooldown > 0) {
+      buyuAtmaCooldown -= dt;
+      if (buyuAtmaCooldown < 0) {
+        buyuAtmaCooldown = 0;
+      }
+    }
+  }
+
+  /// Space basılı ve güç aktifken büyü atılabilir (0.5 sn aralık)
+  bool buyuAtmayiDene() {
+    if (!buyuGucuAktif || !_spaceBasili || buyuAtmaCooldown > 0) {
+      return false;
+    }
+
+    buyuAtmaCooldown = 0.5;
+    return true;
+  }
+
   void hareketEt(double dt) {
     if (_hareketYonu == Vector2.zero()) {
       return;
@@ -91,21 +138,30 @@ class NazliComponent extends SpriteComponent
 
   void _konumuGuncelle(Vector2 yon, double dt) {
     final normalizedYon = yon.normalized();
+    if (normalizedYon.x < 0) {
+      _baktigiYon = -1;
+    } else if (normalizedYon.x > 0) {
+      _baktigiYon = 1;
+    }
     position += normalizedYon * hiz * dt;
-    _sinirlaKonum();
+    _sinirlariUygula();
   }
 
-  /// x: dünya genişliği, y: ekran yüksekliği içinde kal
-  void _sinirlaKonum() {
+  /// Klavye, mobil ve sürükleme sonrası ortak hareket sınırı
+  void _sinirlariUygula() {
     final yarimGenislik = size.x / 2;
     final yarimYukseklik = size.y / 2;
 
+    // Oyun ekranındaki zemin çizgisiyle uyumlu (dunyaY - 140)
+    final zeminY = gorunenYukseklik - 140;
+
+    // Nazlı'nın gökyüzüne çıkmasını engelleyen sınır
+    final minY = zeminY - 160;
+    final maxY = gorunenYukseklik - yarimYukseklik - 20;
+
     position.x =
         position.x.clamp(yarimGenislik, dunyaGenisligi - yarimGenislik);
-    position.y = position.y.clamp(
-      yarimYukseklik,
-      gorunenYukseklik - yarimYukseklik,
-    );
+    position.y = position.y.clamp(minY, maxY);
   }
 
   @override
@@ -134,12 +190,20 @@ class NazliComponent extends SpriteComponent
       _hareketYonu.x += 1;
     }
 
+    _spaceBasili = keysPressed.contains(LogicalKeyboardKey.space);
+
+    if (sol && !sag) {
+      _baktigiYon = -1;
+    } else if (sag && !sol) {
+      _baktigiYon = 1;
+    }
+
     return true;
   }
 
   @override
   void onDragUpdate(DragUpdateEvent event) {
     position += event.localDelta;
-    _sinirlaKonum();
+    _sinirlariUygula();
   }
 }

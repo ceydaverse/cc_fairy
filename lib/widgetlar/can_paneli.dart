@@ -10,7 +10,7 @@ class CanPaneli extends StatelessWidget {
     required this.can,
   });
 
-  // Mevcut can sayısı (başlangıç: 3)
+  // Mevcut kalan can (0 … OyunSkoru.baslangicCan)
   final int can;
 
   @override
@@ -45,11 +45,11 @@ class CanPaneli extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // 3 kalp ikonu — dolu veya boş
+          // baslangicCan kadar kalp — dolu/boş döngüyle (hardcoded değil)
           ...List.generate(OyunSkoru.baslangicCan, (index) {
             final dolu = index < can;
             return Padding(
-              padding: const EdgeInsets.only(left: 3),
+              padding: const EdgeInsets.only(left: 2),
               child: _kalpGorseli(dolu: dolu),
             );
           }),
@@ -64,14 +64,14 @@ class CanPaneli extends StatelessWidget {
       // Dolu kalp: renk filtresi yok, orijinal görsel
       return Image.asset(
         'assets/images/kalp.png',
-        width: 30,
-        height: 30,
+        width: 24,
+        height: 24,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
           return Icon(
             Icons.favorite,
             color: Colors.red.shade400,
-            size: 30,
+            size: 24,
           );
         },
       );
@@ -81,7 +81,7 @@ class CanPaneli extends StatelessWidget {
     return Icon(
       Icons.favorite_border,
       color: Colors.grey.shade400,
-      size: 30,
+      size: 24,
     );
   }
 }

@@ -12,9 +12,13 @@ import 'package:flutter/material.dart';
 
 
 
+import '../componentler/agac_component.dart';
+
 import '../componentler/buyu_component.dart';
 
 import '../componentler/cadi_component.dart';
+
+import '../componentler/cadi_satosu_component.dart';
 
 import '../componentler/canavar_component.dart';
 
@@ -29,6 +33,8 @@ import '../componentler/iksir_component.dart';
 import '../componentler/kelebek_component.dart';
 
 import '../componentler/karabulut_component.dart';
+
+import '../componentler/nazli_buyu_component.dart';
 
 import '../componentler/nazli_component.dart';
 
@@ -212,7 +218,7 @@ class _OyunEkraniState extends State<OyunEkrani> {
 
                     ),
 
-                    // Sağ üst — can kutusu (3 kalp)
+                    // Sağ üst — can kutusu (OyunSkoru.baslangicCan kadar kalp)
 
                     Positioned(
 
@@ -378,6 +384,9 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
   bool _oyunBitti = false;
 
+  // Kaybetme ekranından önce şato yanına dönüş beklemesi
+  String? _bekleyenKaybetmeMetni;
+
   bool _oyunKuruldu = false;
 
   bool _oyunKuruluyor = false;
@@ -442,6 +451,10 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
   final List<BuyuComponent> _buyuler = [];
 
+  final List<AgacComponent> _agaclar = [];
+
+  final List<NazliBuyuComponent> _nazliBuyuler = [];
+
 
 
   @override
@@ -473,6 +486,18 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
   void _buyuEkle(BuyuComponent buyu) {
 
     _buyuler.add(buyu);
+
+    world.add(buyu);
+
+  }
+
+
+
+  /// Nazlı'nın peri büyüsünü dünyaya ekler
+
+  void _nazliBuyuEkle(NazliBuyuComponent buyu) {
+
+    _nazliBuyuler.add(buyu);
 
     world.add(buyu);
 
@@ -521,6 +546,12 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
       'kelebek.png',
 
       'iksir.png',
+
+      'agac_1.png',
+
+      'agac_2.png',
+
+      'cadi_satosu.png',
 
     ]);
 
@@ -676,7 +707,19 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
 
 
-    // 2) Nazlı — diğer nesnelerden önce oluştur (update/cadı/canavar bunu kullanır)
+    // Cadı şatosu — başlangıç dekoru (haritanın sol başı, zemine yakın)
+
+    final satoKonumu = Vector2(120, _zeminY - 110);
+
+    final cadiSatosu = CadiSatosuComponent(konum: satoKonumu);
+
+    cadiSatosu.priority = _oyunNesnesiOnceligi;
+
+    await world.add(cadiSatosu);
+
+
+
+    // 2) Nazlı — şatonun sağında başlar (kaçış hissi)
 
     _nazli = NazliComponent(
 
@@ -690,15 +733,16 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
     await world.add(_nazli);
 
+    _nazli.position = Vector2(250, _zeminY - 60);
+
 
 
     // 3) Ev — haritanın en sonunda (ilk ekranda görünmez)
+    // Ev boyutu EvComponent içinde kontrol ediliyor.
 
     _ev = EvComponent(
 
-      konum: Vector2(_dunyaGenisligi - 180, dunyaY - 180),
-
-      boyut: Vector2(96, 96),
+      konum: Vector2(_dunyaGenisligi - 180, _zeminY - 90),
 
     );
 
@@ -735,6 +779,8 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
     // 5) Çiçekler, dikenler, canavarlar — haritaya yayılmış
 
     await _cicekleriOlustur();
+
+    await _agaclariOlustur();
 
     await _dikenleriOlustur();
 
@@ -800,27 +846,40 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
   Future<void> _cicekleriOlustur() async {
 
-    final cicekBoyutu = Vector2(55, 55);
+    // Çiçek boyutu CicekComponent içinde kontrol ediliyor.
 
     final w = _dunyaGenisligi;
 
 
 
-    // Rastgele sadece yatay konum dağıtılıyor; y zemine yakın
+    // Çiçek sayısı artırıldı ve haritaya dengeli dağıtıldı.
+    // x: baştan sona eşit aralık; diken/canavar/cadı konumlarından hafif kaydırıldı.
 
     final cicekTanimlari = <(CicekTuru, double)>[
 
-      (CicekTuru.pembe, w * 0.10),
+      (CicekTuru.pembe, w * 0.08),
 
-      (CicekTuru.mavi, w * 0.22),
+      (CicekTuru.mavi, w * 0.15),
 
-      (CicekTuru.mor, w * 0.35),
+      (CicekTuru.mor, w * 0.22),
 
-      (CicekTuru.pembe, w * 0.50),
+      (CicekTuru.pembe, w * 0.27), // w*0.30 canavar
 
-      (CicekTuru.mavi, w * 0.68),
+      (CicekTuru.mavi, w * 0.38),
 
-      (CicekTuru.mor, w * 0.85),
+      (CicekTuru.mor, w * 0.46),
+
+      (CicekTuru.pembe, w * 0.54),
+
+      (CicekTuru.mavi, w * 0.66), // w*0.62 diken / w*0.60 cadı
+
+      (CicekTuru.mor, w * 0.70),
+
+      (CicekTuru.pembe, w * 0.81), // w*0.78 diken
+
+      (CicekTuru.mavi, w * 0.86),
+
+      (CicekTuru.mor, w * 0.94),
 
     ];
 
@@ -828,17 +887,16 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
     for (final (tur, x) in cicekTanimlari) {
 
-      // Objeler gökyüzünde çıkmasın diye zemine yakın yerleştirildi
-
-      final y = _zeminY - 10 + _rastgele.nextDouble() * 20;
+      // Anchor merkez — boyut CicekComponent'te; zemin hizası için yarı yükseklik
+      final y = _zeminY -
+          CicekComponent.varsayilanBoyut.y / 2 +
+          _rastgele.nextDouble() * 15;
 
       final cicek = CicekComponent(
 
         tur: tur,
 
         konum: Vector2(x, y),
-
-        boyut: cicekBoyutu,
 
       );
 
@@ -850,6 +908,24 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
     }
 
+  }
+
+
+
+  /// Haritaya 2 ağaç — Nazlı dokununca geçici büyü gücü
+
+  Future<void> _agaclariOlustur() async {
+    final agacTanimlari = <(String, Vector2)>[
+      ('agac_1.png', Vector2(_dunyaGenisligi * 0.25, _zeminY - 90)),
+      ('agac_2.png', Vector2(_dunyaGenisligi * 0.65, _zeminY - 90)),
+    ];
+
+    for (final (assetAdi, konum) in agacTanimlari) {
+      final agac = AgacComponent(konum: konum, assetAdi: assetAdi);
+      agac.priority = _oyunNesnesiOnceligi;
+      _agaclar.add(agac);
+      await world.add(agac);
+    }
   }
 
 
@@ -1030,6 +1106,18 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
 
 
+    // Büyü gücü süresi ve Space ile atış (0.5 sn aralık)
+
+    _nazli.buyuGucunuGuncelle(dt);
+
+    if (_nazli.buyuAtmayiDene()) {
+
+      _nazliBuyuFirlat();
+
+    }
+
+
+
     // Kamera Nazlı'yı yatayda takip eder
 
     _kamerayiTakipEt();
@@ -1040,9 +1128,17 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
     _buyuler.removeWhere((buyu) => !buyu.isMounted);
 
+    _nazliBuyuler.removeWhere((buyu) => !buyu.isMounted);
+
 
 
     _kelebekCarpismasiniKontrolEt();
+
+    _iksirCarpismasiniKontrolEt();
+
+    _agacCarpismalariniKontrolEt();
+
+    _nazliBuyuCadiCarpismasiniKontrolEt();
 
     _cicekCarpismalariniKontrolEt();
 
@@ -1052,7 +1148,8 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
     _buyuCarpismalariniKontrolEt();
 
-    _cadiTemasKontrolEt();
+    // Cadıya temas artık hasar vermiyor; sadece büyü hasar verir.
+    // _cadiTemasKontrolEt();
 
     _canavarCarpismasiniKontrolEt();
 
@@ -1086,6 +1183,79 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
     }
 
+  }
+
+
+
+  /// Nazlı ağaca dokununca 5 sn büyü gücü; ağaç 10 sn cooldown
+
+  void _agacCarpismalariniKontrolEt() {
+    for (final agac in _agaclar) {
+      if (!agac.isMounted || !agac.gucVerebilir) {
+        continue;
+      }
+
+      if (_nazli.sinirlar.overlaps(agac.sinirlar)) {
+        _nazli.buyuGucuKazan();
+        agac.gucVerildi();
+      }
+    }
+  }
+
+
+
+  /// Space ile atılan büyü cadıya çarpınca 4 sn sersemletme
+
+  void _nazliBuyuCadiCarpismasiniKontrolEt() {
+    if (!_cadi.isMounted) {
+      return;
+    }
+
+    for (final buyu in _nazliBuyuler.toList()) {
+      if (!buyu.isMounted) {
+        continue;
+      }
+
+      if (buyu.sinirlar.overlaps(_cadi.sinirlar)) {
+        buyu.removeFromParent();
+        _nazliBuyuler.remove(buyu);
+        _cadi.sersemlet(4);
+      }
+    }
+  }
+
+
+
+  /// Nazlı peri büyüsü — baktığı yöne doğru
+
+  void _nazliBuyuFirlat() {
+    final yon = _nazli.baktigiYonu;
+    final baslangic = _nazli.position + Vector2(yon.x * 55, 0);
+
+    final buyu = NazliBuyuComponent(
+      baslangic: baslangic,
+      yon: yon,
+      dunyaGenisligi: _dunyaGenisligi,
+      dunyaYuksekligi: _gorunenYukseklik,
+    );
+    buyu.priority = _oyunNesnesiOnceligi;
+    _nazliBuyuEkle(buyu);
+  }
+
+
+
+  /// Nazlı iksire değince içilir; cadı 5 saniye büyü atamaz
+
+  void _iksirCarpismasiniKontrolEt() {
+    if (!_iksir.isMounted || !_iksir.gorunur || _iksir.icildiMi) {
+      return;
+    }
+
+    if (_nazli.sinirlar.overlaps(_iksir.sinirlar)) {
+      _iksir.ic();
+      // İksir içildiğinde cadı büyüsü 5 saniye durur
+      _cadi.buyuAtmayiDurdur(5);
+    }
   }
 
 
@@ -1260,7 +1430,9 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
 
 
-  /// Cadıya temas edilirse de 1 can azalt (aynı hasar cooldown)
+  /// Cadıya temas hasarı — şu an update içinde çağrılmıyor.
+  /// Bu fonksiyon kullanılmıyor çünkü cadıya temas hasarı kaldırıldı.
+  /// Hasar yalnızca _buyuCarpismalariniKontrolEt() ile büyü çarpışmasından gelir.
 
   void _cadiTemasKontrolEt() {
 
@@ -1356,11 +1528,77 @@ class PeriOyunu extends FlameGame with HasKeyboardHandlerComponents {
 
 
 
+    // Kazanma: doğrudan sonuç ekranı
+
+    if (sonucMetni == 'Kazandın') {
+
+      _oyunBitti = true;
+
+      pauseEngine();
+
+      onOyunBitti(sonucMetni);
+
+      return;
+
+    }
+
+
+
+    // Kaybetme: önce şato yanına dön, kısa bekle, sonra sonuç
+
+    _kaybetmeSonucuBaslat(sonucMetni);
+
+  }
+
+
+
+  /// Kaybedince Nazlı şato yanına döner; ~0.9 sn sonra SonucEkrani
+
+  void _kaybetmeSonucuBaslat(String sonucMetni) {
+
+    if (_oyunBitti) {
+
+      return;
+
+    }
+
+
+
     _oyunBitti = true;
 
-    pauseEngine();
 
-    onOyunBitti(sonucMetni);
+
+    // Kaybedince Nazlı şato yanına çekilir, kamera başa alınır
+
+    _nazli.position = Vector2(160, _zeminY - 60);
+
+    camera.viewfinder.position = Vector2.zero();
+
+
+
+    _bekleyenKaybetmeMetni = sonucMetni;
+
+
+
+    // Kaybetme ekranından önce kısa bekleme (pozisyon görünsün diye pause gecikmeli)
+
+    Future<void>.delayed(const Duration(milliseconds: 900), () {
+
+      if (!isMounted || _bekleyenKaybetmeMetni == null) {
+
+        return;
+
+      }
+
+
+
+      pauseEngine();
+
+      onOyunBitti(_bekleyenKaybetmeMetni!);
+
+      _bekleyenKaybetmeMetni = null;
+
+    });
 
   }
 
