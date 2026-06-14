@@ -29,8 +29,8 @@ class KelebekComponent extends SpriteComponent
   Rect get sinirlar {
     return Rect.fromCenter(
       center: Offset(position.x, position.y),
-      width: size.x,
-      height: size.y,
+      width: size.x * 1.8,
+      height: size.y * 1.8,
     );
   }
 
@@ -56,11 +56,8 @@ class KelebekComponent extends SpriteComponent
     // İksir konumu çevresinde yavaşça süzül
     _ucusAcisi += dt * 2.2;
     final hedefMerkez = iksirKonumu;
-    position = hedefMerkez +
-        Vector2(
-          cos(_ucusAcisi) * 55,
-          sin(_ucusAcisi * 1.3) * 35,
-        );
+    position =
+        hedefMerkez + Vector2(cos(_ucusAcisi) * 55, sin(_ucusAcisi * 1.3) * 35);
   }
 
   /// Kelebek yakalandı — ekrandan kaldır

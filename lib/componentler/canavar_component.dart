@@ -5,10 +5,7 @@ import 'package:flame/game.dart';
 
 import 'parcacik_component.dart';
 
-enum CanavarHareketYonu {
-  yatay,
-  dikey,
-}
+enum CanavarHareketYonu { yatay, dikey }
 
 /// Ekranda otomatik hareket eden canavar engeli
 class CanavarComponent extends SpriteComponent
@@ -21,7 +18,7 @@ class CanavarComponent extends SpriteComponent
     this.dunyaGenisligi,
     this.gorunenYukseklik,
     this.zeminY,
-  }) : _boyut = boyut ?? Vector2(72, 72) {
+  }) : _boyut = boyut ?? Vector2(150, 150) {
     position = konum;
   }
 
@@ -95,7 +92,7 @@ class CanavarComponent extends SpriteComponent
   void _dikeyHareketEt(double dt) {
     final yarimYukseklik = size.y / 2;
 
-    // Zemin tanımlıysa dikey patrol yalnızca yer seviyesine yakın
+    
     final minY = zeminY != null ? zeminY! - 35 : yarimYukseklik;
     final maxY = zeminY != null
         ? zeminY! + 8

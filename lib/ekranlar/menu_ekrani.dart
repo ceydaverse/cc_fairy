@@ -21,7 +21,7 @@ class MenuEkrani extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Ekip fotoğrafı menüde daha görünür olacak şekilde büyütüldü
+
                   const EkipFotografiGorseli(
                     genislik: 500,
                     yukseklik: 500,

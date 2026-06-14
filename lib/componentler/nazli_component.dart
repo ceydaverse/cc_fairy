@@ -15,18 +15,18 @@ class NazliComponent extends SpriteComponent
     required this.gorunenYukseklik,
   });
 
-  // Geniş oyun dünyası genişliği (x sınırı)
   final double dunyaGenisligi;
 
-  // Görünen ekran yüksekliği (y sınırı)
+  
   final double gorunenYukseklik;
 
   static const double hiz = 220;
 
-  // Ağaç gücü — 5 sn aktif, Space ile 0.5 sn aralıkla büyü
+  // Ağaç gücü — 10 sn aktif, Space/buton ile 0.5 sn aralıkla büyü
   bool buyuGucuAktif = false;
   double buyuGucuKalanSure = 0;
   double buyuAtmaCooldown = 0;
+  bool _buyuGucuTekKullanimlik = true;
 
   // Sağ: 1, sol: -1 (varsayılan sağ)
   int _baktigiYon = 1;
@@ -86,10 +86,11 @@ class NazliComponent extends SpriteComponent
     _oncekiKonum = position.clone();
   }
 
-  /// Ağaç dokunuşu — 5 saniye büyü gücü
-  void buyuGucuKazan({double sure = 5}) {
+  /// Ağaç dokunuşu — 10 saniyelik büyü gücü
+  void buyuGucuKazan({double sure = 10}) {
     buyuGucuAktif = true;
     buyuGucuKalanSure = sure;
+    _buyuGucuTekKullanimlik = sure <= 0;
   }
 
   /// Güç süresi ve atış cooldown güncellemesi
@@ -100,8 +101,6 @@ class NazliComponent extends SpriteComponent
         buyuGucuKalanSure = 0;
         buyuGucuAktif = false;
       }
-    } else {
-      buyuGucuAktif = false;
     }
 
     if (buyuAtmaCooldown > 0) {
@@ -113,12 +112,17 @@ class NazliComponent extends SpriteComponent
   }
 
   /// Space basılı ve güç aktifken büyü atılabilir (0.5 sn aralık)
-  bool buyuAtmayiDene() {
-    if (!buyuGucuAktif || !_spaceBasili || buyuAtmaCooldown > 0) {
+  bool buyuAtmayiDene({bool zorla = false}) {
+    if (!buyuGucuAktif || (!zorla && !_spaceBasili) || buyuAtmaCooldown > 0) {
       return false;
     }
 
     buyuAtmaCooldown = 0.5;
+    if (_buyuGucuTekKullanimlik) {
+      buyuGucuAktif = false;
+      buyuGucuKalanSure = 0;
+      _buyuGucuTekKullanimlik = true;
+    }
     return true;
   }
 
@@ -159,8 +163,10 @@ class NazliComponent extends SpriteComponent
     final minY = zeminY - 160;
     final maxY = gorunenYukseklik - yarimYukseklik - 20;
 
-    position.x =
-        position.x.clamp(yarimGenislik, dunyaGenisligi - yarimGenislik);
+    position.x = position.x.clamp(
+      yarimGenislik,
+      dunyaGenisligi - yarimGenislik,
+    );
     position.y = position.y.clamp(minY, maxY);
   }
 
@@ -168,13 +174,17 @@ class NazliComponent extends SpriteComponent
   bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     _hareketYonu = Vector2.zero();
 
-    final yukari = keysPressed.contains(LogicalKeyboardKey.arrowUp) ||
+    final yukari =
+        keysPressed.contains(LogicalKeyboardKey.arrowUp) ||
         keysPressed.contains(LogicalKeyboardKey.keyW);
-    final asagi = keysPressed.contains(LogicalKeyboardKey.arrowDown) ||
+    final asagi =
+        keysPressed.contains(LogicalKeyboardKey.arrowDown) ||
         keysPressed.contains(LogicalKeyboardKey.keyS);
-    final sol = keysPressed.contains(LogicalKeyboardKey.arrowLeft) ||
+    final sol =
+        keysPressed.contains(LogicalKeyboardKey.arrowLeft) ||
         keysPressed.contains(LogicalKeyboardKey.keyA);
-    final sag = keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
+    final sag =
+        keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
         keysPressed.contains(LogicalKeyboardKey.keyD);
 
     if (yukari) {

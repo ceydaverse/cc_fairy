@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-/// Flutter ekranları için tam ekran arka plan widget'ı (BoxFit.cover)
+/// Flutter ekranları için tam ekran arka plan widget'ı 
 class ArkaplanWidget extends StatelessWidget {
   const ArkaplanWidget({
     super.key,

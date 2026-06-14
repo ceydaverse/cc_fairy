@@ -11,7 +11,7 @@ class EvComponent extends SpriteComponent with HasGameReference<FlameGame> {
     position = konum;
   }
 
-  // Ev boyutu — büyütmek için sadece burayı değiştir
+
   static final Vector2 evBoyutu = Vector2(180, 180);
 
   /// Çarpışma kontrolü için evin ekrandaki dikdörtgen alanı
@@ -27,7 +27,7 @@ class EvComponent extends SpriteComponent with HasGameReference<FlameGame> {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // Ev görselini yükle (Flame: sadece dosya adı)
+    // Ev görselini yükleyelim
     final evGorseli = await game.images.load('ev.png');
     sprite = Sprite(evGorseli);
     size = evBoyutu;

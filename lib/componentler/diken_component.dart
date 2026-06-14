@@ -9,7 +9,7 @@ class DikenComponent extends SpriteComponent
   DikenComponent({
     required Vector2 konum,
     Vector2? boyut,
-  }) : _boyut = boyut ?? Vector2(56, 56) {
+  }) : _boyut = boyut ?? Vector2(60, 60) {
     position = konum;
   }
 

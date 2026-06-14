@@ -9,8 +9,8 @@ class YagmurDamlasiComponent extends PositionComponent
     with HasGameReference<FlameGame> {
   YagmurDamlasiComponent({required Vector2 konum}) {
     position = konum;
-    // Küçük mavi damla boyutu
-    size = Vector2(6, 16);
+    // Çarpışması hissedilir, görünür mavi damla boyutu
+    size = Vector2(11, 11);
     anchor = Anchor.center;
     // Yağmur arka plandan biraz önde, buluttan sonra görünsün
     priority = 5;

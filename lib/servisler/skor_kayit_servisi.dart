@@ -2,7 +2,7 @@
 class SkorKayitServisi {
   SkorKayitServisi._();
 
-  // Tekil örnek (singleton)
+  
   static final SkorKayitServisi instance = SkorKayitServisi._();
 
   int _enIyiSkor = 0;

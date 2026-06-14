@@ -6,12 +6,9 @@ import 'package:flame/game.dart';
 import 'parcacik_component.dart';
 
 /// İksir — oyun başında gizli; kelebek yakalanınca fade-in ile görünür
-class IksirComponent extends SpriteComponent
-    with HasGameReference<FlameGame> {
-  IksirComponent({
-    required Vector2 konum,
-    Vector2? boyut,
-  }) : _boyut = boyut ?? Vector2(52, 52) {
+class IksirComponent extends SpriteComponent with HasGameReference<FlameGame> {
+  IksirComponent({required Vector2 konum, Vector2? boyut})
+    : _boyut = boyut ?? Vector2(80, 80) {
     position = konum;
   }
 
@@ -22,6 +19,7 @@ class IksirComponent extends SpriteComponent
 
   // Fade-in animasyonu
   double _hedefOpaklik = 0;
+  double _toplanabilirGecikme = 0;
 
   /// İksir şu an ekranda görünüyor mu?
   bool get gorunur => _gorunur;
@@ -34,7 +32,7 @@ class IksirComponent extends SpriteComponent
 
   /// Çarpışma — yalnızca görünür ve içilmemiş iksir için
   Rect get sinirlar {
-    if (!_gorunur || _icildi) {
+    if (!_gorunur || _icildi || _toplanabilirGecikme > 0 || opacity < 0.55) {
       return Rect.zero;
     }
 
@@ -49,12 +47,11 @@ class IksirComponent extends SpriteComponent
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // assets/images/iksir.png (veya potion.png dosyasını bu isimle ekleyin)
     final iksirGorseli = await game.images.load('iksir.png');
     sprite = Sprite(iksirGorseli);
     size = _boyut;
     anchor = Anchor.center;
-    priority = 2;
+    priority = 6;
 
     // Başlangıçta tamamen gizli
     opacity = 0;
@@ -66,6 +63,10 @@ class IksirComponent extends SpriteComponent
 
     if (!_gorunur) {
       return;
+    }
+
+    if (_toplanabilirGecikme > 0) {
+      _toplanabilirGecikme = (_toplanabilirGecikme - dt).clamp(0.0, 1.0);
     }
 
     // Fade-in: opaklığı yavaşça 1'e çıkar
@@ -93,6 +94,7 @@ class IksirComponent extends SpriteComponent
     _icildi = true;
     _gorunur = false;
     _hedefOpaklik = 0;
+    _toplanabilirGecikme = 0;
     opacity = 0;
   }
 
@@ -104,7 +106,8 @@ class IksirComponent extends SpriteComponent
 
     _gorunur = true;
     _hedefOpaklik = 1.0;
-    opacity = 0;
+    _toplanabilirGecikme = 0.6;
+    opacity = 0.15;
 
     // İksir konumunda kısa pırıltı efekti (basit işaret)
     final hedef = parent;

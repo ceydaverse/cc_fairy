@@ -3,21 +3,21 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-/// Nazlı'nın kodla çizilen peri büyüsü — beyaz / lila / açık pembe
+
 class NazliBuyuComponent extends PositionComponent {
   NazliBuyuComponent({
     required Vector2 baslangic,
     required Vector2 yon,
     required this.dunyaGenisligi,
     required this.dunyaYuksekligi,
-  })  : _yon = yon.normalized(),
-        super(
-          position: baslangic,
-          size: Vector2(_carpismaBoyutu, _carpismaBoyutu),
-          anchor: Anchor.center,
-        );
+  }) : _yon = yon.normalized(),
+       super(
+         position: baslangic,
+         size: Vector2(_carpismaBoyutu, _carpismaBoyutu),
+         anchor: Anchor.center,
+       );
 
-  static const double _carpismaBoyutu = 26;
+  static const double _carpismaBoyutu = 42;
 
   final Vector2 _yon;
   final double dunyaGenisligi;
@@ -26,7 +26,13 @@ class NazliBuyuComponent extends PositionComponent {
   final double hiz = 300;
   double _animasyonZamani = 0;
 
-  Rect get sinirlar => toRect();
+  Rect get sinirlar {
+    return Rect.fromCenter(
+      center: Offset(position.x, position.y),
+      width: size.x,
+      height: size.y,
+    );
+  }
 
   @override
   void update(double dt) {
@@ -71,16 +77,17 @@ class NazliBuyuComponent extends PositionComponent {
 
     // İç parlak çekirdek — beyaza yakın
     final cekirdek = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          const Color(0xFFFFFFFF).withValues(alpha: 0.98),
-          const Color(0xFFF3E5F5).withValues(alpha: 0.7),
-          const Color(0xFFFCE4EC).withValues(alpha: 0.0),
-        ],
-        stops: const [0.0, 0.4, 1.0],
-      ).createShader(
-        Rect.fromCircle(center: cizimMerkezi, radius: temelR * 0.55),
-      );
+      ..shader =
+          RadialGradient(
+            colors: [
+              const Color(0xFFFFFFFF).withValues(alpha: 0.98),
+              const Color(0xFFF3E5F5).withValues(alpha: 0.7),
+              const Color(0xFFFCE4EC).withValues(alpha: 0.0),
+            ],
+            stops: const [0.0, 0.4, 1.0],
+          ).createShader(
+            Rect.fromCircle(center: cizimMerkezi, radius: temelR * 0.55),
+          );
     canvas.drawCircle(cizimMerkezi, temelR * 0.55, cekirdek);
   }
 

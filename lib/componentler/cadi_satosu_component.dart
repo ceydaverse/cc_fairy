@@ -10,7 +10,7 @@ class CadiSatosuComponent extends SpriteComponent
     position = konum;
   }
 
-  // Şato boyutu — büyütmek için sadece burayı değiştir
+ 
   static final Vector2 satoBoyutu = Vector2(230, 230);
 
   @override

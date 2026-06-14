@@ -10,15 +10,15 @@ class BuyuComponent extends PositionComponent {
     required Vector2 hedef,
     required this.dunyaGenisligi,
     required this.dunyaYuksekligi,
-  })  : _yon = (hedef - baslangic).normalized(),
-        super(
-          position: baslangic,
-          // Çarpışma alanı (eski yarıçap 14 ile uyumlu)
-          size: Vector2(_carpismaBoyutu, _carpismaBoyutu),
-          anchor: Anchor.center,
-        );
+  }) : _yon = (hedef - baslangic).normalized(),
+       super(
+         position: baslangic,
+      
+         size: Vector2(_carpismaBoyutu, _carpismaBoyutu),
+         anchor: Anchor.center,
+       );
 
-  static const double _carpismaBoyutu = 28;
+  static const double _carpismaBoyutu = 42;
 
   // Büyünün gideceği yön
   final Vector2 _yon;
@@ -170,7 +170,8 @@ class BuyuComponent extends PositionComponent {
     for (var i = 0; i < 4; i++) {
       final aci = faz + i * 1.57;
       final uzaklik = temelR * (0.55 + 0.12 * math.sin(faz * 2 + i));
-      final nokta = merkez +
+      final nokta =
+          merkez +
           Offset(math.cos(aci) * uzaklik, math.sin(aci) * uzaklik * 0.9);
       canvas.drawCircle(nokta, 2.2, kivilcim);
     }
@@ -195,8 +196,14 @@ class BuyuComponent extends PositionComponent {
     }
   }
 
-  /// Çarpışma kontrolü için sınır alanı (görselden bağımsız sabit kutu)
-  Rect get sinirlar => toRect();
+  /// Çarpışma kontrolü için sınır alanı (anchor.center ile uyumlu)
+  Rect get sinirlar {
+    return Rect.fromCenter(
+      center: Offset(position.x, position.y),
+      width: size.x,
+      height: size.y,
+    );
+  }
 }
 
 class _BuyuIzNoktasi {

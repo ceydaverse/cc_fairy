@@ -6,19 +6,15 @@ import 'package:flame/game.dart';
 import '../modeller/cicek_turu.dart';
 
 /// Toplanabilir çiçek bileşeni — türüne göre farklı görsel kullanır
-class CicekComponent extends SpriteComponent
-    with HasGameReference<FlameGame> {
-  CicekComponent({
-    required this.tur,
-    required Vector2 konum,
-  }) {
+class CicekComponent extends SpriteComponent with HasGameReference<FlameGame> {
+  CicekComponent({required this.tur, required Vector2 konum}) {
     position = konum;
   }
 
-  // Çiçek boyutu — büyütmek için sadece burayı değiştir
-  static final Vector2 varsayilanBoyut = Vector2(85, 85);
+ 
+  static final Vector2 varsayilanBoyut = Vector2(120, 120);
 
-  // Çiçeğin rengi/türü (modeller klasöründen gelir)
+  // Çiçeğin rengi/türü 
   final CicekTuru tur;
 
   // Çiçek toplandı mı? Oyun ekranı bu bayrağı kontrol eder

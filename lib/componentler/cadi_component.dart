@@ -65,7 +65,9 @@ class CadiComponent extends SpriteComponent with HasGameReference<FlameGame> {
 
     final cadiGorseli = await game.images.load('cadi.png');
     sprite = Sprite(cadiGorseli);
-    size = Vector2(68, 68);
+    const nazliYuksekligi = 150.0;
+    final oran = cadiGorseli.width / cadiGorseli.height;
+    size = Vector2(nazliYuksekligi * oran, nazliYuksekligi);
     anchor = Anchor.center;
   }
 
@@ -99,10 +101,23 @@ class CadiComponent extends SpriteComponent with HasGameReference<FlameGame> {
     }
   }
 
-  /// İksir içilince cadının büyü atmasını geçici durdurur
-  void buyuAtmayiDurdur(double saniye) {
+  /// İksir ve Nazlı büyüsü cadının büyü atmasını geçici durdurur
+  void disableSpellCastingFor(Duration duration) {
+    final saniye = duration.inMilliseconds / 1000;
+    if (saniye <= 0) {
+      return;
+    }
+
     buyuAtabilir = false;
-    _buyuEngelKalan = saniye;
+    if (saniye > _buyuEngelKalan) {
+      _buyuEngelKalan = saniye;
+    }
+    _buyuSayaci = buyuBeklemeSuresi;
+  }
+
+
+  void buyuAtmayiDurdur(double saniye) {
+    disableSpellCastingFor(Duration(milliseconds: (saniye * 1000).round()));
   }
 
   /// Büyü engel süresi bitince cadı tekrar büyü atabilir

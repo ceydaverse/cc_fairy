@@ -42,7 +42,7 @@ class ParcacikComponent extends PositionComponent
   late final Vector2 _drift;
   late final double _baslangicBoyut;
 
-  /// Nazlı arkasında altın-beyaz pırıltı bırakır (dünya içine eklenir)
+ 
   static void pirlentiBirak(Component eklemeHedefi, Vector2 konum) {
     final rastgele = Random();
     final ofset = Vector2(

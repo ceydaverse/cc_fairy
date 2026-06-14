@@ -5,9 +5,9 @@ enum CicekTuru {
   mor,
 }
 
-/// Her çiçek türü için asset dosya adlarını döndüren uzantı
+
 extension CicekTuruUzantisi on CicekTuru {
-  /// Flame images.load() için sadece dosya adı
+
   String get assetDosyaAdi {
     switch (this) {
       case CicekTuru.pembe:

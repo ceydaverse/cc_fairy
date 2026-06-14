@@ -7,15 +7,15 @@ import 'package:flame/game.dart';
 class AgacComponent extends SpriteComponent with HasGameReference<FlameGame> {
   AgacComponent({
     required Vector2 konum,
-    required this.assetAdi,
+    required this.assetAdi, //required = degeri zorunlu girilmesi lazım
   }) {
     position = konum;
   }
 
-  // agac_1.png veya agac_2.png
+ 
   final String assetAdi;
 
-  // Ağaç boyutu — büyütmek için sadece burayı değiştir
+ 
   static final Vector2 agacBoyutu = Vector2(150, 180);
 
   static const double cooldownSuresi = 10;
